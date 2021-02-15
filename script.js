@@ -1,12 +1,20 @@
-const Player = (sign) => {
-    const getSign = () => sign;
+const Player = () => {
+    const getSign = () => "X";
     return { getSign }
-}
+};
+
+const Computer = () => {
+    const getSign = () => "O";
+    const getIndex = () => Math.floor((Math.random() * 9));
+    return { getSign, getIndex }
+};
 
 const gameBoard = (() => {
     const board = ["", "", "", "", "", "", "", "", ""];
 
+    // when fieldIndex not empty => return undefined 
     const setField = (index, sign) => {
+        if (board[index] !== "") return;
         board[index] = sign;
         return board;
     }
@@ -32,9 +40,14 @@ const displayController = (() => {
 
     fields.forEach((field) => 
         field.addEventListener('click', () => {
-            if (gameController.getIsOver() == true) return; 
+            if (gameController.getIsOver() == true || field.textContent !== '') return;
             gameController.playRound(parseInt(field.dataset.index));
             updateGameboard();
+            setTimeout(() => {
+                if (gameController.getIsOver() == true) return;
+                gameController.computerPlayRound();
+                updateGameboard();
+            }, 1000)
         })
     )
 
@@ -67,8 +80,8 @@ const displayController = (() => {
 })();
 
 const gameController = (() => {
-    const playerX = Player('X');
-    const playerO = Player('O');
+    const playerX = Player();
+    const playerO = Computer();
     let round = 1;
     let isOver = false;
 
@@ -84,6 +97,14 @@ const gameController = (() => {
             isOver = true;
             return;
         }
+        round++;
+        displayController.sendTurnMessage(getCurrentPlayerSign());
+    }
+
+    const computerPlayRound = () => {
+        let fieldIndex = playerO.getIndex();
+        console.log(fieldIndex);
+        console.log(gameBoard.setField(fieldIndex, getCurrentPlayerSign()));
         round++;
         displayController.sendTurnMessage(getCurrentPlayerSign());
     }
@@ -120,5 +141,5 @@ const gameController = (() => {
         isOver = false;
     }
 
-    return { playRound, getCurrentPlayerSign, checkWinner, getIsOver, restart };
+    return { playRound, computerPlayRound, getCurrentPlayerSign, checkWinner, getIsOver, restart };
 })();
