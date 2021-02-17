@@ -11,8 +11,6 @@ const Computer = () => {
 const gameBoard = (() => {
     const board = ["", "", "", "", "", "", "", "", ""];
     
-
-    // when fieldIndex not empty => return undefined 
     const setField = (index, sign) => {
         if (board[index] !== "") return;
         board[index] = sign;
@@ -45,14 +43,14 @@ const displayController = (() => {
             updateGameboard();
             setTimeout(() => {
                 if (gameController.getIsOver() == true) return;
-                gameController.computerPlayRound();
+                gameController.playRound();
                 updateGameboard();
             }, 1000)
         })
     )
 
     restartButton.addEventListener('click', () => { 
-        console.log(gameBoard.restart()) 
+        gameBoard.restart();
         gameController.restart();
         updateGameboard();
         message.textContent = `Player X's turn.`;
@@ -86,7 +84,11 @@ const gameController = (() => {
     let round = 1;
     let isOver = false;
 
+    // combine playRound() and computerPlayRound() because 90% of them are similar 
     const playRound = (fieldIndex) => {
+        if (fieldIndex == undefined) {
+            fieldIndex = availableIndex[Math.floor((Math.random() * availableIndex.length))];
+        }
         gameBoard.setField(fieldIndex, getCurrentPlayerSign());
         if (checkWinner(fieldIndex)) {
             displayController.sendResultMessage(getCurrentPlayerSign());
@@ -99,24 +101,6 @@ const gameController = (() => {
             return;
         }
         availableIndex.splice(availableIndex.indexOf(fieldIndex), 1);
-        round++;
-        displayController.sendTurnMessage(getCurrentPlayerSign());
-    }
-
-    const computerPlayRound = () => {
-        let fieldIndex = availableIndex[Math.floor((Math.random() * availableIndex.length))]
-        availableIndex.splice(availableIndex.indexOf(fieldIndex), 1);
-        gameBoard.setField(fieldIndex, getCurrentPlayerSign());
-        if (checkWinner(fieldIndex)) {
-            displayController.sendResultMessage(getCurrentPlayerSign());
-            isOver = true;
-            return;
-        }
-        if (round == 9) {
-            displayController.sendResultMessage("Draw");
-            isOver = true;
-            return;
-        }
         round++;
         displayController.sendTurnMessage(getCurrentPlayerSign());
     }
@@ -154,5 +138,5 @@ const gameController = (() => {
         availableIndex = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     }
 
-    return { playRound, computerPlayRound, getCurrentPlayerSign, checkWinner, getIsOver, restart };
+    return { playRound, getCurrentPlayerSign, checkWinner, getIsOver, restart };
 })();
