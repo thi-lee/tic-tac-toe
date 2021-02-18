@@ -21,7 +21,8 @@ const gameBoard = (() => {
     }
 
     const emptyIndexes = (newBoard) => {
-        return newBoard.filter(index => index !== "X" && index !== "O");
+        emptyI = newBoard.filter(index => index != "X" && index != "O");
+        return emptyI;
     }
 
     const restart = () => {
@@ -131,15 +132,18 @@ const gameController = (() => {
         }
     }
 
+    // newBoard = gameBoard.getBoard() => e.g. [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    // player = getCurrentPlayerSign()
     const minimax = (newBoard, player) => {
         const availSpots = gameBoard.emptyIndexes(newBoard);
 
-        if (winning(newBoard, getCurrentPlayerSign() == "X")) {
+        // only score: 0 runs
+        if (winning(newBoard, "X")) {
             return { score: -10 };
-        } else if (winning(newBoard, getCurrentPlayerSign() == "O")) {
+        } else if (winning(newBoard, "O")) {
             return { score: 10 };
         } else if (availSpots.length === 0) {
-            return { score: 0};
+            return { score: 0 };
         }
 
         // an array to collect all the objects
