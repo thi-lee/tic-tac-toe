@@ -1,15 +1,17 @@
+// https://www.freecodecamp.org/news/how-to-make-your-tic-tac-toe-game-unbeatable-by-using-the-minimax-algorithm-9d690bad4b37/
+
 const Player = (sign) => {
     const getSign = () => sign;
     return { getSign }
 };
 
 const gameBoard = (() => {
-    let board = ["", "", "", "", "", "", "", "", ""];
+    let board = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
     let getBoard = () => board;
     
     const setField = (index, sign) => {
-        if (board[index] !== "") return;
+        if (board[index] == "X" && board[index] == "O") return;
         board[index] = sign;
         return board;
     }
@@ -19,12 +21,12 @@ const gameBoard = (() => {
     }
 
     const emptyIndexes = (newBoard) => {
-        return newBoard.filter(index => index != "X" && index != "O");
+        return newBoard.filter(index => index !== "X" && index !== "O");
     }
 
     const restart = () => {
         for (i = 0; i < board.length; i++) {
-            board[i] = "";
+            board[i] = i;
         }
         return board;
     }
@@ -71,7 +73,11 @@ const displayController = (() => {
 
     const updateGameboard = () => {
         for (i = 0; i < fields.length; i++) {
-            fields[i].textContent = gameBoard.getField(i);
+            if (gameBoard.getField(i) !== "X" && gameBoard.getField(i) !== "O") {
+                fields[i].textContent = "";
+            } else {
+                fields[i].textContent = gameBoard.getField(i);
+            }
         }
     }
 
@@ -81,7 +87,6 @@ const displayController = (() => {
 const gameController = (() => {
     const playerX = Player("X");
     const playerO = Player("O");
-    let availableIndex = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     let round = 1;
     let isOver = false;
 
@@ -91,7 +96,7 @@ const gameController = (() => {
             fieldIndex = minimax(gameBoard.getBoard(), getCurrentPlayerSign()).index;
         }
         gameBoard.setField(fieldIndex, getCurrentPlayerSign());
-        if (checkWinner(fieldIndex)) {
+        if (winning(gameBoard.getBoard(), getCurrentPlayerSign())) {
             displayController.sendResultMessage(getCurrentPlayerSign());
             isOver = true;
             return;
@@ -101,32 +106,12 @@ const gameController = (() => {
             isOver = true;
             return;
         }
-        availableIndex.splice(availableIndex.indexOf(fieldIndex), 1);
         round++;
         displayController.sendTurnMessage(getCurrentPlayerSign());
     }
 
     const getCurrentPlayerSign = () => {
         return round % 2 === 1 ? playerX.getSign() : playerO.getSign();
-    }
-
-    const checkWinner = (fieldIndex) => {
-        const winconditions = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ]
-
-        return winconditions
-        .filter(combination => combination.includes(fieldIndex))
-        .some(possibleCombination => possibleCombination.every(
-            (index) => gameBoard.getField(index) == getCurrentPlayerSign())
-        );
     }
 
     const winning = (board, player) => {
@@ -164,7 +149,7 @@ const gameController = (() => {
         for (let i = 0; i < availSpots.length; i++) {
             // create an object for each and store the index of that spot 
             let move = {};
-            move.index = newBoard[availSpots[i]];
+            move.index = newBoard[availSpots[i]];  // right now it's newBoard[""];
 
             // set the empty spot to the current player
             newBoard[availSpots[i]] = player;
@@ -218,7 +203,6 @@ const gameController = (() => {
     const restart = () => {
         round = 1;
         isOver = false;
-        availableIndex = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     }
 
     return { playRound, getCurrentPlayerSign, getIsOver, restart };
